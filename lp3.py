@@ -15,6 +15,12 @@ class dbobject():
 class point(dbobject):
     def __init__(self, parent, attrs):
         dbobject.__init__(self, parent, attrs)
+        try:
+            parent.pointlist.append(self)
+        except AttributeError:
+            parent.pointlist = []
+            parent.pointlist.append(self)
+
     def dostuff(self):
         print 'point name is', self.attrs['TLM_MNEMONIC']
 
@@ -183,6 +189,9 @@ class parser():
                 x = cl(self.db, self.attrs)
                 x.dostuff()
             self.tag, self.attrs = line_get(self.infile)
+        for p in self.db.pointlist:
+            print '->', p.attrs['TLM_MNEMONIC']
+            
 
     def get_item(self):
         # Warning: assuming parser is at the sort-of-top level
