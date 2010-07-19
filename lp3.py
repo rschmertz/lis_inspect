@@ -60,6 +60,7 @@ class grammar_tree:
         parent_node.add_child(child_tag, child)
         print 'we eon\'t see this'
         self.tag_lookup[child_tag] = child
+        child.add_class(the_class)
         return child
 
     def walk_tree(self):
@@ -77,6 +78,8 @@ class grammar_tree:
             print tag, 'is a valid tag'
             self.curr = temp.kids[tag]
             return self.curr.klass
+        else:
+            return None
 
 def tokenize(s):
     '''
@@ -163,7 +166,7 @@ class parser():
             k.load_graph(everything, k.gt.curr)
 
         k.curr = None
-
+        k.db = dbobject(None, {})
         k.tag, k.attrs = line_get(k.infile)
 
     def load_graph(self, graph, node):
@@ -176,6 +179,9 @@ class parser():
     def do_crap(self):
         while (self.tag):
             cl = self.gt.handle_tag(self.tag)
+            if cl != None:
+                x = cl(self.db, self.attrs)
+                x.dostuff()
             self.tag, self.attrs = line_get(self.infile)
 
     def get_item(self):
