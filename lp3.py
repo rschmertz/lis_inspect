@@ -77,40 +77,6 @@ class grammar_tree:
             print tag, 'is a valid tag'
             self.curr = temp.kids[tag]
             return self.curr.klass
-        
-neverything = [  #OBSOLETE!!!!!!!!!!!!!!!!!!!!
-    dbobject,
-    {
-    'TLM_POINT':[
-        point,
-        {
-            'TLM_VALUE':None,
-            #'SIM_ARGS': None,
-            'TLM_LOCATION':None,
-            #'TLM_LIMITS_SET':None,
-            #'TLM_EUS':None,
-            'TLM_STATE_CONTEXT':[
-                dbobject,
-                {
-                    'TLM_STATE':None
-                }
-            ]
-        }
-    ],
-    'GLOBAL_VAR':[
-        dbobject,
-        {
-            'GLOBAL_LONG_VALUE':None,
-            'GLOBAL_DOUBLE_VALUE':None,
-#             'GLOBAL_STRING_VALUE':None,
-#             'GLOBAL_TIMEVAL_VALUE':None,
-#             'VAR_STATE':None,
-#             'VAR_LIMIT':None
-        }
-    ],
-    'SYSTEM_EVENT':None
-}]
-
 
 def tokenize(s):
     '''
@@ -184,8 +150,8 @@ class parser():
     def __init__(k, filename):
         k.infile = open(filename)
         k.gt = grammar_tree()
-        gt = k.gt
         if False:
+            gt = k.gt
             l1 = gt.add_child('TOP','TLM_POINT', None)
             l2 =    gt.add_child(l1, 'TLM_VALUE', None)
             l2 =    gt.add_child(l1, 'TLM_STATE_CONTEXT', None)
@@ -194,7 +160,7 @@ class parser():
             l1 = gt.add_child('TOP', 'GLOBAL_VAR', None)
             l2 =    gt.add_child(l1, 'GLOBAL_LONG_VALUE', None)
         else:
-            k.db = k.load_graph(everything, gt.curr)
+            k.load_graph(everything, k.gt.curr)
 
         k.curr = None
 
@@ -202,12 +168,11 @@ class parser():
 
     def load_graph(self, graph, node):
         if not graph:
-            return None
+            return
         for tuple in graph:
             nu_node = self.gt.add_child(node, tuple[0], tuple[1])
             self.load_graph(tuple[2], nu_node)
             
-
     def do_crap(self):
         while (self.tag):
             cl = self.gt.handle_tag(self.tag)
