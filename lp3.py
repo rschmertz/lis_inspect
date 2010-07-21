@@ -4,7 +4,7 @@
 
 import sys, re, types
 
-class dbobject():
+class nodeobject():
     def __init__(self, parent, attrs):
         self.parent = parent
         self.attrs = attrs
@@ -12,9 +12,9 @@ class dbobject():
     def dostuff(self):
         print 'doing nothing'
 
-class point(dbobject):
+class point(nodeobject):
     def __init__(self, parent, attrs):
-        dbobject.__init__(self, parent, attrs)
+        nodeobject.__init__(self, parent, attrs)
         try:
             parent.pointlist.append(self)
         except AttributeError:
@@ -172,7 +172,7 @@ class parser():
             k.load_graph(everything, k.gt.curr)
 
         k.curr = None
-        k.db = dbobject(None, {})
+        k.db = nodeobject(None, {})
         k.tag, k.attrs = line_get(k.infile)
 
     def load_graph(self, graph, node):
