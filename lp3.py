@@ -100,13 +100,15 @@ class gt_node:
         
 
 class grammar_tree:
-    def __init__(self):
+    def __init__(self, model):
         top_node = gt_node('TOP', None)
         self.tag_lookup = {'TOP':top_node}
         #self.tag_lookup = {}
         self.curr = top_node
         #add something about the current actual data node here, so that we can
         #move up the db tree as wee move up the grammar tree
+
+        self.load_graph(model, self.curr)
 
     def add_child(self, parent, child_tag, the_class):
         if type(parent) == types.StringType:
@@ -130,6 +132,13 @@ class grammar_tree:
                 helper(node.kids[kid], count + 1)
         helper(self.kids['TOP'], 0)
 
+    def load_graph(self, graph, node):
+        if not graph:
+            return
+        for tuple in graph:
+            nu_node = self.add_child(node, tuple[0], tuple[1])
+            self.load_graph(tuple[2], nu_node)
+            
     def handle_tag(self, tag):
         temp = self.curr
         count = 0
@@ -215,7 +224,7 @@ def load_attrs(tl):
 class parser():
     def __init__(k, filename):
         k.infile = open(filename)
-        k.gt = grammar_tree()
+        k.gt = grammar_tree(everything)
         if False:
             gt = k.gt
             l1 = gt.add_child('TOP','TLM_POINT', None)
@@ -226,19 +235,13 @@ class parser():
             l1 = gt.add_child('TOP', 'GLOBAL_VAR', None)
             l2 =    gt.add_child(l1, 'GLOBAL_LONG_VALUE', None)
         else:
-            k.load_graph(everything, k.gt.curr)
+            #k.gt.load_graph(everything, k.gt.curr)
+            pass
 
         k.db = dbobject(None, {})
         k.curr = k.db
         k.tag, k.attrs = line_get(k.infile)
 
-    def load_graph(self, graph, node):
-        if not graph:
-            return
-        for tuple in graph:
-            nu_node = self.gt.add_child(node, tuple[0], tuple[1])
-            self.load_graph(tuple[2], nu_node)
-            
     def do_crap(self):
         while (self.tag):
             cl, uplevels = self.gt.handle_tag(self.tag)
