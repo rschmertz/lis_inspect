@@ -55,13 +55,16 @@ class dbobject(nodeobject):
         nodeobject.__init__(self, parent, attrs)
         self.pointdir = {}
 
-everything = [(  'TLM_POINT', point,
-                 [(  'TLM_VALUE', None, None),
-                  (  'TLM_STATE_CONTEXT', None,
-                     [(  'TLM_STATE', None, None)]),
-                  (  'TLM_LOCATION', None, None)]),
-              (  'GLOBAL_VAR', None,
-                 [(  'GLOBAL_LONG_VALUE', None, None)])]
+point_def = (  'TLM_POINT', point,
+               [(  'TLM_VALUE', None, None),
+                (  'TLM_STATE_CONTEXT', None,
+                   [(  'TLM_STATE', None, None)]),
+                (  'TLM_LOCATION', None, None)])
+
+global_def = (  'GLOBAL_VAR', None,
+                [(  'GLOBAL_LONG_VALUE', None, None)])
+
+everything = [point_def, global_def]
 
 class gt_node:
     def __init__(self,tag,parent):
