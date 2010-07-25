@@ -140,6 +140,8 @@ class grammar_tree:
             self.load_graph(tuple[2], nu_node)
             
     def handle_tag(self, tag):
+        if tag not in self.tag_lookup:
+            return None, 0
         temp = self.curr
         count = 0
         while temp and not temp.kids.has_key(tag):
@@ -151,6 +153,7 @@ class grammar_tree:
             self.curr = temp.kids[tag]
             return self.curr.klass, count
         else:
+            "mayby we don't get here"
             return None, 0
 
 def tokenize(s):
