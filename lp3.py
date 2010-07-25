@@ -8,21 +8,52 @@ class nodeobject():
     def __init__(self, parent, attrs):
         self.parent = parent
         self.attrs = attrs
+        self.children = {}
+
+    def parasitize(self, parent):
+        pass
 
     def dostuff(self):
-        print 'doing nothing'
+        print 'dostuff not defined for', self.__class__.__name__
+        
+    def addchild(self, name, new_child):
+        if not self.children.has_key(name):
+            self.children[name] = new_child
+        else:
+            # This is a type that can have multiple entries
+            # in the parent object
+            if type(self.children[name]) != types.ListType:
+                el = self.children[name]
+                self.children[name] = [el]
+            self.children[name].append(new_child)
+        new_child.parasitize(self)
+
+        
 
 class point(nodeobject):
     def __init__(self, parent, attrs):
         nodeobject.__init__(self, parent, attrs)
+
+    def dostuff(self):
+        print 'point name is', self.attrs['TLM_MNEMONIC']
+
+    def parasitize(self, parent):
         try:
             parent.pointlist.append(self)
         except AttributeError:
             parent.pointlist = []
             parent.pointlist.append(self)
+        
+#     def addchild(name, obj):
+#         nodeobject.addchild(self, name, obj)
+#         if obj.__class__.__name__ == 'point':
+#             pointlist.append(obj)
 
-    def dostuff(self):
-        print 'point name is', self.attrs['TLM_MNEMONIC']
+
+class dbobject(nodeobject):
+    def __init__(self, parent, attrs):
+        nodeobject.__init__(self, parent, attrs)
+        self.pointdir = {}
 
 everything = [(  'TLM_POINT', point,
                  [(  'TLM_VALUE', None, None),
@@ -43,7 +74,7 @@ class gt_node:
         self.kids[tag] = child
 
     def add_class(self, klass):
-        self.klass = klass
+        self.klass = klass or nodeobject
         
 
 class grammar_tree:
@@ -52,7 +83,8 @@ class grammar_tree:
         self.tag_lookup = {'TOP':top_node}
         #self.tag_lookup = {}
         self.curr = top_node
-
+        #add something about the current actual data node here, so that we can
+        #move up the db tree as wee move up the grammar tree
 
     def add_child(self, parent, child_tag, the_class):
         if type(parent) == types.StringType:
@@ -75,17 +107,20 @@ class grammar_tree:
             for kid in node.kids.keys():
                 helper(node.kids[kid], count + 1)
         helper(self.kids['TOP'], 0)
+
     def handle_tag(self, tag):
         temp = self.curr
+        count = 0
         while temp and not temp.kids.has_key(tag):
             print 'searaching for', tag, 'in', temp.tag
             temp = temp.parent
+            count = count + 1
         if temp:
             print tag, 'is a valid tag'
             self.curr = temp.kids[tag]
-            return self.curr.klass
+            return self.curr.klass, count
         else:
-            return None
+            return None, 0
 
 def tokenize(s):
     '''
@@ -171,8 +206,8 @@ class parser():
         else:
             k.load_graph(everything, k.gt.curr)
 
-        k.curr = None
-        k.db = nodeobject(None, {})
+        k.db = dbobject(None, {})
+        k.curr = k.db
         k.tag, k.attrs = line_get(k.infile)
 
     def load_graph(self, graph, node):
@@ -184,14 +219,23 @@ class parser():
             
     def do_crap(self):
         while (self.tag):
-            cl = self.gt.handle_tag(self.tag)
-            if cl != None:
-                x = cl(self.db, self.attrs)
+            cl, uplevels = self.gt.handle_tag(self.tag)
+            if cl:
+                while uplevels:
+                    self.curr = self.curr.parent
+                    uplevels = uplevels - 1
+                x = cl(self.curr, self.attrs)
+                self.curr.addchild(self.tag, x)
                 x.dostuff()
+                self.curr = x
             self.tag, self.attrs = line_get(self.infile)
         for p in self.db.pointlist:
             print '->', p.attrs['TLM_MNEMONIC']
-            
+            l = p.children['TLM_LOCATION']
+            if type(l) != types.ListType:
+                l = [l]
+            for x in l:
+                print '---->', x.attrs['START_BIT']
 
     def get_item(self):
         # Warning: assuming parser is at the sort-of-top level
