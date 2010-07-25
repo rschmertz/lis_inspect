@@ -102,7 +102,7 @@ class gt_node:
 class grammar_tree:
     def __init__(self, model):
         top_node = gt_node('TOP', None)
-        self.tag_lookup = {'TOP':top_node}
+        self.tag_lookup = set(['top'])
         #self.tag_lookup = {}
         self.curr = top_node
         #add something about the current actual data node here, so that we can
@@ -112,7 +112,7 @@ class grammar_tree:
 
     def add_child(self, parent, child_tag, the_class):
         if type(parent) == types.StringType:
-            parent_node = self.tag_lookup[parent]
+            parent_node = self.tag_lookup[parent] # Now invalid
             print 'looked up parent', parent
         else:
             print 'parent is alreay a node type'
@@ -121,7 +121,7 @@ class grammar_tree:
         print type(parent_node)
         parent_node.add_child(child_tag, child)
         print 'we eon\'t see this'
-        self.tag_lookup[child_tag] = child
+        self.tag_lookup.add(child_tag)
         child.add_class(the_class)
         return child
 
@@ -225,18 +225,6 @@ class parser():
     def __init__(k, filename):
         k.infile = open(filename)
         k.gt = grammar_tree(everything)
-        if False:
-            gt = k.gt
-            l1 = gt.add_child('TOP','TLM_POINT', None)
-            l2 =    gt.add_child(l1, 'TLM_VALUE', None)
-            l2 =    gt.add_child(l1, 'TLM_STATE_CONTEXT', None)
-            l3 =       gt.add_child(l2, 'TLM_STATE', None)
-            l2 =    gt.add_child(l1, 'TLM_LOCATION', None)
-            l1 = gt.add_child('TOP', 'GLOBAL_VAR', None)
-            l2 =    gt.add_child(l1, 'GLOBAL_LONG_VALUE', None)
-        else:
-            #k.gt.load_graph(everything, k.gt.curr)
-            pass
 
         k.db = dbobject(None, {})
         k.curr = k.db
