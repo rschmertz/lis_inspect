@@ -9,6 +9,7 @@ class nodeobject():
         self.parent = parent
         self.attrs = attrs
         self.children = {}
+        self.isListMember = False
 
     def parasitize(self, parent):
         pass
@@ -18,6 +19,8 @@ class nodeobject():
         
     def addchild(self, name, new_child):
         if not self.children.has_key(name):
+            if new_child.isListMember:
+                self.children[name] = [new_child]
             self.children[name] = new_child
         else:
             # This is a type that can have multiple entries
@@ -28,6 +31,19 @@ class nodeobject():
             self.children[name].append(new_child)
         new_child.parasitize(self)
 
+class listmemberobject(nodeobject):
+    '''
+       This type of object always occurs in a list.
+
+       Some items (e.g., TLM_STATE_CONTEXT) may exist singly or
+       multiply.  Rather than have such a child exist as a direct
+       member if it is a singleton, but as a member of a list if it is
+       one of many, it is btter to decare it as a member of a list
+       from the beginning, to simplify searches.
+    '''
+    def __init__(self, parent, attrs):
+        nodeobject.__init__(self, parent, attrs)
+        self.isListMember = True
         
 
 class point(nodeobject):
@@ -51,15 +67,18 @@ class point(nodeobject):
 
 
 class dbobject(nodeobject):
+    '''
+    This is the object for the whole parsed database
+    '''
     def __init__(self, parent, attrs):
         nodeobject.__init__(self, parent, attrs)
         self.pointdir = {}
 
 point_def = (  'TLM_POINT', point,
                [(  'TLM_VALUE', None, None),
-                (  'TLM_STATE_CONTEXT', None,
+                (  'TLM_STATE_CONTEXT', listmemberobject,
                    [(  'TLM_STATE', None, None)]),
-                (  'TLM_LOCATION', None, None)])
+                (  'TLM_LOCATION', listmemberobject, None)])
 
 global_def = (  'GLOBAL_VAR', None,
                 [(  'GLOBAL_LONG_VALUE', None, None)])
