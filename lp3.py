@@ -112,7 +112,6 @@ class grammar_tree:
 
     def add_child(self, parent, child_tag, the_class):
         if type(parent) == types.StringType:
-            parent_node = self.tag_lookup[parent] # Now invalid
             print 'looked up parent', parent
         else:
             print 'parent is alreay a node type'
@@ -254,12 +253,25 @@ class parser():
                 print '---->', x.attrs['START_BIT']
 
     def get_item(self):
+        '''
+           Gets a complete item, e.g., a tlm_point or a global
+        '''
         # Warning: assuming parser is at the sort-of-top level
         node = self.gt.curr
         ''' starts off at 'top', but ever after, it will complete at
         one level below.
         '''
         #new_node = self.gt.
+        cl, uplevels = self.gt.handle_tag(self.tag)
+        if cl:
+            while uplevels:
+                self.curr = self.curr.parent
+                uplevels = uplevels - 1
+            x = cl(self.curr, self.attrs)
+            self.curr.addchild(self.tag, x)
+            x.dostuff()
+            self.curr = x
+        self.tag, self.attrs = line_get(self.infile)
 
 p = parser(sys.argv[1])
 p.do_crap()
