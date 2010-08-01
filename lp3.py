@@ -139,6 +139,11 @@ class grammar_tree:
             self.load_graph(tuple[2], nu_node)
             
     def handle_tag(self, tag):
+        '''
+           If tag is simply unknown, returned class is None
+           If a tag is found as a child, returns a class and, if the tag was
+           not a child class, a nonzero count
+        '''
         if tag not in self.tag_lookup:
             return None, 0
         temp = self.curr
@@ -231,10 +236,17 @@ class parser():
         k.db = dbobject(None, {})
         k.curr = k.db
         k.tag, k.attrs = line_get(k.infile)
+        if (k.tag):
+            k.cl, k.uplevels = k.gt.handle_tag(k.tag)
+        else:
+            print "file contains no tags"
+            sys.exit(1)
+            
 
     def do_crap(self):
+        cl = self.cl
+        uplevels = self.uplevels # Pick these up from when the constructor set them
         while (self.tag):
-            cl, uplevels = self.gt.handle_tag(self.tag)
             if cl:
                 while uplevels:
                     self.curr = self.curr.parent
@@ -244,6 +256,12 @@ class parser():
                 x.dostuff()
                 self.curr = x
             self.tag, self.attrs = line_get(self.infile)
+            if (self.tag):
+                cl, uplevels = self.gt.handle_tag(self.tag)
+
+        self.showstuff()
+
+    def showstuff(self):
         for p in self.db.pointlist:
             print '->', p.attrs['TLM_MNEMONIC']
             l = p.children['TLM_LOCATION']
