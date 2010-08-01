@@ -248,15 +248,14 @@ class parser():
         k.curr = k.db
         k.tag, k.attrs = line_get(k.infile)
         if (k.tag):
-            k.cl, k.uplevels = k.gt.handle_tag(k.tag)
+            k.next_node, k.uplevels = k.gt.locate_tag(k.tag)
         else:
             print "file contains no tags"
             sys.exit(1)
             
 
     def do_crap(self):
-        cl = self.cl
-        uplevels = self.uplevels # Pick these up from when the constructor set them
+        cl, uplevels = self.gt.handle_tag(self.tag)
         while (self.tag):
             if cl:
                 while uplevels:
