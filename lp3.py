@@ -144,6 +144,18 @@ class grammar_tree:
            If a tag is found as a child, returns a class and, if the tag was
            not a child class, a nonzero count
         '''
+        node, count = self.locate_tag(tag)
+        if node:
+            self.curr = node.kids[tag]
+            return self.curr.klass, count
+        else:
+            return None, 0
+
+    def locate_tag(self, tag):
+        '''
+           Determines whether and where a tag is found; does not change
+           state of parser.
+        '''
         if tag not in self.tag_lookup:
             return None, 0
         temp = self.curr
@@ -154,8 +166,7 @@ class grammar_tree:
             count = count + 1
         if temp:
             print tag, 'is a valid tag'
-            self.curr = temp.kids[tag]
-            return self.curr.klass, count
+            return temp, count
         else:
             "mayby we don't get here"
             return None, 0
