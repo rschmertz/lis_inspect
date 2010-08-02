@@ -55,6 +55,7 @@ class point(nodeobject):
 
     def parasitize(self, parent):
         try:
+            #print 'Adding me to parent type ', parent.__class__.__name__
             parent.pointlist.append(self)
         except AttributeError:
             parent.pointlist = []
@@ -101,10 +102,10 @@ class gt_node:
 
 class grammar_tree:
     def __init__(self, model):
-        top_node = gt_node('TOP', None)
+        self.top_node = gt_node('TOP', None)
         self.tag_lookup = set(['top'])
         #self.tag_lookup = {}
-        self.curr = top_node
+        self.curr = self.top_node
         #add something about the current actual data node here, so that we can
         #move up the db tree as wee move up the grammar tree
 
@@ -165,7 +166,7 @@ class grammar_tree:
             temp = temp.parent
             count = count + 1
         if temp:
-            print tag, 'is a valid tag'
+            #print tag, 'is a valid tag'
             return temp, count
         else:
             "mayby we don't get here"
@@ -278,26 +279,60 @@ class parser():
             for x in l:
                 print '---->', x.attrs['START_BIT']
 
+    def do_crap2(self):
+        while (self.tag):
+            self.get_item()
+        self.showstuff()
+
     def get_item(self):
         '''
            Gets a complete item, e.g., a tlm_point or a global
         '''
         # Warning: assuming parser is at the sort-of-top level
-        node = self.gt.curr
-        ''' starts off at 'top', but ever after, it will complete at
-        one level below.
-        '''
-        #new_node = self.gt.
-        cl, uplevels = self.gt.handle_tag(self.tag)
-        if cl:
+        node = self.curr
+        if node != self.db:
+            print "get_tiem did not start out at top_node"
+            sys.exit(1)
+        else:
+            print 'started out at top node'
+        
+        item_found = False
+        item_complete = False
+        tempnode, uplevels = self.gt.locate_tag(self.tag)
+        while not tempnode:
+            self.tag, self.attrs = line_get(self.infile)
+            if not self.tag:
+                # end of file
+                return None
+            tempnode, uplevels = self.gt.locate_tag(self.tag)
+        while self.curr != self.db or not item_found:
+            breakplace = 'top'
             while uplevels:
                 self.curr = self.curr.parent
                 uplevels = uplevels - 1
-            x = cl(self.curr, self.attrs)
+            if (self.curr == self.db) and item_found:
+                self.gt.curr = self.gt.top_node
+                break
+            item_found = True
+            self.cl, uplevels = self.gt.handle_tag(self.tag)
+            x = self.cl(self.curr, self.attrs)
             self.curr.addchild(self.tag, x)
             x.dostuff()
             self.curr = x
-        self.tag, self.attrs = line_get(self.infile)
+            self.tag, self.attrs = line_get(self.infile)
+            if not self.tag:
+                # end of file
+                return None
+            tempnode, uplevels = self.gt.locate_tag(self.tag)
+            while not tempnode:
+                self.tag, self.attrs = line_get(self.infile)
+                if not self.tag:
+                    # end of file
+                    return None
+                tempnode, uplevels = self.gt.locate_tag(self.tag)
+            
+
+        
 
 p = parser(sys.argv[1])
-p.do_crap()
+p.do_crap2()
