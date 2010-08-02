@@ -247,9 +247,7 @@ class parser():
         k.db = dbobject(None, {})
         k.curr = k.db
         k.tag, k.attrs = line_get(k.infile)
-        if (k.tag):
-            k.next_node, k.uplevels = k.gt.locate_tag(k.tag)
-        else:
+        if not k.tag:
             print "file contains no tags"
             sys.exit(1)
             
