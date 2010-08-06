@@ -98,7 +98,8 @@ class gt_node:
 
     def add_class(self, klass):
         self.klass = klass or nodeobject
-        
+    def get_child(self, tag):
+        return self.kids.get(tag, None)
 
 class grammar_tree:
     def __init__(self, model):
@@ -139,39 +140,6 @@ class grammar_tree:
             nu_node = self.add_child(node, tuple[0], tuple[1])
             self.load_graph(tuple[2], nu_node)
             
-    def handle_tag(self, tag):
-        '''
-           If tag is simply unknown, returned class is None
-           If a tag is found as a child, returns a class and, if the tag was
-           not a child class, a nonzero count
-        '''
-        node, count = self.locate_tag(tag)
-        if node:
-            self.curr = node.kids[tag]
-            return self.curr.klass, count
-        else:
-            return None, 0
-
-    def locate_tag(self, tag):
-        '''
-           Determines whether and where a tag is found; does not change
-           state of parser.
-        '''
-        if tag not in self.tag_lookup:
-            return None, 0
-        temp = self.curr
-        count = 0
-        while temp and not temp.kids.has_key(tag):
-            print 'searaching for', tag, 'in', temp.tag
-            temp = temp.parent
-            count = count + 1
-        if temp:
-            #print tag, 'is a valid tag'
-            return temp, count
-        else:
-            "mayby we don't get here"
-            return None, 0
-
 def tokenize(s):
     '''
     tokenizes a string in an EPOCH DB.  Assumptions:
@@ -246,6 +214,7 @@ class parser():
         k.gt = grammar_tree(everything)
 
         k.db = dbobject(None, {})
+        k.db.g_node = k.gt.top_node
         k.curr = k.db
         k.tag, k.attrs = line_get(k.infile)
         if not k.tag:
@@ -284,6 +253,21 @@ class parser():
             self.get_item()
         self.showstuff()
 
+    def locate_tag(self, tag):
+        '''
+           Determines whether and where a tag is found; does not change
+           state of parser.
+        '''
+        gt = self.gt
+        if tag not in gt.tag_lookup:
+            return None
+        temp = self.curr
+        while temp and not temp.g_node.get_child(tag):
+            #kids.has_key(tag):
+            print 'searaching for', tag, 'in', temp.g_node.tag
+            temp = temp.parent
+        return temp
+
     def get_item(self):
         '''
            Gets a complete item, e.g., a tlm_point or a global
@@ -298,38 +282,37 @@ class parser():
         
         item_found = False
         item_complete = False
-        tempnode, uplevels = self.gt.locate_tag(self.tag)
+        tempnode = self.locate_tag(self.tag)
         while not tempnode:
             self.tag, self.attrs = line_get(self.infile)
             if not self.tag:
                 # end of file
                 return None
-            tempnode, uplevels = self.gt.locate_tag(self.tag)
+            tempnode = self.locate_tag(self.tag)
         while self.curr != self.db or not item_found:
-            breakplace = 'top'
-            while uplevels:
-                self.curr = self.curr.parent
-                uplevels = uplevels - 1
+            self.curr = tempnode
             if (self.curr == self.db) and item_found:
                 self.gt.curr = self.gt.top_node
                 break
             item_found = True
-            self.cl, uplevels = self.gt.handle_tag(self.tag)
+            child_g_node = tempnode.g_node.get_child(self.tag)
+            self.cl = child_g_node.klass
             x = self.cl(self.curr, self.attrs)
             self.curr.addchild(self.tag, x)
             x.dostuff()
+            x.g_node = child_g_node
             self.curr = x
             self.tag, self.attrs = line_get(self.infile)
             if not self.tag:
                 # end of file
                 return None
-            tempnode, uplevels = self.gt.locate_tag(self.tag)
+            tempnode = self.locate_tag(self.tag)
             while not tempnode:
                 self.tag, self.attrs = line_get(self.infile)
                 if not self.tag:
                     # end of file
                     return None
-                tempnode, uplevels = self.gt.locate_tag(self.tag)
+                tempnode = self.locate_tag(self.tag)
             
 
         
