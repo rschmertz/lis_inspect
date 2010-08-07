@@ -283,14 +283,13 @@ class parser():
         item_found = False
         item_complete = False
         tempnode = self.locate_tag(self.tag)
-        if True:
+        while True:
             while not tempnode:
                 self.tag, self.attrs = line_get(self.infile)
                 if not self.tag:
                     # end of file
                     return None
                 tempnode = self.locate_tag(self.tag)
-        while self.curr != self.db or not item_found:
             self.curr = tempnode
             if (self.curr == self.db) and item_found:
                 self.gt.curr = self.gt.top_node
@@ -308,15 +307,6 @@ class parser():
                 # end of file
                 return None
             tempnode = self.locate_tag(self.tag)
-            while not tempnode:
-                self.tag, self.attrs = line_get(self.infile)
-                if not self.tag:
-                    # end of file
-                    return None
-                tempnode = self.locate_tag(self.tag)
-            
-
-        
 
 p = parser(sys.argv[1])
 p.do_crap2()
