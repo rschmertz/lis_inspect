@@ -281,18 +281,17 @@ class parser():
             print 'started out at top node'
         
         item_found = False
-        item_complete = False
-        tempnode = self.locate_tag(self.tag)
         while True:
-            while not tempnode:
-                self.tag, self.attrs = line_get(self.infile)
+            while True:
                 if not self.tag:
                     # end of file
                     return None
                 tempnode = self.locate_tag(self.tag)
+                if tempnode:
+                    break
+                self.tag, self.attrs = line_get(self.infile)
             self.curr = tempnode
             if (self.curr == self.db) and item_found:
-                self.gt.curr = self.gt.top_node
                 break
             item_found = True
             child_g_node = tempnode.g_node.get_child(self.tag)
@@ -303,10 +302,6 @@ class parser():
             x.g_node = child_g_node
             self.curr = x
             self.tag, self.attrs = line_get(self.infile)
-            if not self.tag:
-                # end of file
-                return None
-            tempnode = self.locate_tag(self.tag)
 
 p = parser(sys.argv[1])
 p.do_crap2()
