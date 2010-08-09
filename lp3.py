@@ -282,14 +282,13 @@ class parser():
             if (self.curr == self.db) and item_found:
                 return item_found
             child_g_node = tempnode.g_node.get_child(self.tag)
-            self.cl = child_g_node.klass
-            x = self.cl(self.curr, self.attrs)
+            x = child_g_node.klass(self.curr, self.attrs)
             self.curr.addchild(self.tag, x)
             x.dostuff()
             x.g_node = child_g_node
             self.curr = x
             if not item_found:
-                item_found = self.curr
+                item_found = x
             self.tag, self.attrs = line_get(self.infile)
 
 p = parser(sys.argv[1])
