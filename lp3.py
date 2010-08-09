@@ -119,12 +119,10 @@ class grammar_tree:
         if type(parent) == types.StringType:
             print 'looked up parent', parent
         else:
-            print 'parent is alreay a node type'
             parent_node = parent
         child = gt_node(child_tag, parent_node)
-        print type(parent_node)
+        #print type(parent_node)
         parent_node.add_child(child_tag, child)
-        print 'we eon\'t see this'
         self.tag_lookup.add(child_tag)
         child.add_class(the_class)
         return child
@@ -255,7 +253,7 @@ class parser():
         temp = self.curr
         while temp and not temp.g_node.get_child(tag):
             #kids.has_key(tag):
-            print 'searaching for', tag, 'in', temp.g_node.tag
+            #print 'searaching for', tag, 'in', temp.g_node.tag
             temp = temp.parent
         return temp
 
@@ -294,5 +292,35 @@ class parser():
                 item_found = x
             self.tag, self.attrs = line_get(self.infile)
 
-p = parser(sys.argv[1])
-p.do_crap2()
+
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print 'Need a file to parse as 1st arg'
+        sys.exit()
+    #DBp = dbparser(sys.argv[1])
+    #load_db(DBp)
+    fdsdfdsf = 9
+    #everything = [point_def]
+    DBp = parser(sys.argv[1])
+    def find_point(test):
+        for pt in (DBp.db.children.get('TLM_POINT') or []):
+            #print 'hoya hoya'
+            if test(pt):
+                print 'Match found:', pt.name
+                return pt
+        item = DBp.get_item()
+        while item:
+            if item.attrs.has_key('TLM_MNEMONIC'):
+                #item.dostuff()
+                if test(item):
+                    print 'Match found:', item.name
+                    return item
+            item = DBp.get_item()
+
+        print 'No matches found'
+        return None
+
+    #DBp.do_crap2()
+    find_point(lambda p: len(p.children.get('TLM_LIMITS_SET') or []) > 1)
+    find_point(lambda p: p.children.get('TLM_STATE_CONTEXT'))
+    
