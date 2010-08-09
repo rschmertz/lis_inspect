@@ -81,6 +81,7 @@ point_def = (  'TLM_POINT', point,
                [(  'TLM_VALUE', None, None),
                 (  'TLM_STATE_CONTEXT', listmemberobject,
                    [(  'TLM_STATE', None, None)]),
+                (  'TLM_LIMITS_SET', listmemberobject, None),
                 (  'TLM_LOCATION', listmemberobject, None)])
 
 global_def = (  'GLOBAL_VAR', None,
