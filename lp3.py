@@ -220,24 +220,6 @@ class parser():
         if not k.tag:
             print "file contains no tags"
             sys.exit(1)
-            
-
-    def do_crap(self):
-        cl, uplevels = self.gt.handle_tag(self.tag)
-        while (self.tag):
-            if cl:
-                while uplevels:
-                    self.curr = self.curr.parent
-                    uplevels = uplevels - 1
-                x = cl(self.curr, self.attrs)
-                self.curr.addchild(self.tag, x)
-                x.dostuff()
-                self.curr = x
-            self.tag, self.attrs = line_get(self.infile)
-            if (self.tag):
-                cl, uplevels = self.gt.handle_tag(self.tag)
-
-        self.showstuff()
 
     def showstuff(self):
         for p in self.db.children['TLM_POINT']:
