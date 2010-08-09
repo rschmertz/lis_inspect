@@ -21,7 +21,8 @@ class nodeobject():
         if not self.children.has_key(name):
             if new_child.isListMember:
                 self.children[name] = [new_child]
-            self.children[name] = new_child
+            else:
+                self.children[name] = new_child
         else:
             # This is a type that can have multiple entries
             # in the parent object
@@ -49,9 +50,10 @@ class listmemberobject(nodeobject):
 class point(nodeobject):
     def __init__(self, parent, attrs):
         nodeobject.__init__(self, parent, attrs)
+        self.name = self.attrs['TLM_MNEMONIC']
 
     def dostuff(self):
-        print 'point name is', self.attrs['TLM_MNEMONIC']
+        print 'point name is', self.name
 
     def parasitize(self, parent):
         try:
