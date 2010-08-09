@@ -240,7 +240,7 @@ class parser():
         self.showstuff()
 
     def showstuff(self):
-        for p in self.db.pointlist:
+        for p in self.db.children['TLM_POINT']:
             print '->', p.attrs['TLM_MNEMONIC']
             l = p.children['TLM_LOCATION']
             if type(l) != types.ListType:
@@ -249,9 +249,15 @@ class parser():
                 print '---->', x.attrs['START_BIT']
 
     def do_crap2(self):
+        last_g_name = None
         while (self.tag):
-            self.get_item()
+            g = self.get_item()
+            if g == None:
+                print 'NO item returned!!!'
+            last_g_name = g.attrs.get('VAR_NAME', last_g_name)
         self.showstuff()
+        #print 'last global name is', last_g_name
+        
 
     def locate_tag(self, tag):
         '''
@@ -280,20 +286,19 @@ class parser():
         else:
             print 'started out at top node'
         
-        item_found = False
+        item_found = None
         while True:
             while True:
                 if not self.tag:
                     # end of file
-                    return None
+                    return item_found
                 tempnode = self.locate_tag(self.tag)
                 if tempnode:
                     break
                 self.tag, self.attrs = line_get(self.infile)
             self.curr = tempnode
             if (self.curr == self.db) and item_found:
-                break
-            item_found = True
+                return item_found
             child_g_node = tempnode.g_node.get_child(self.tag)
             self.cl = child_g_node.klass
             x = self.cl(self.curr, self.attrs)
@@ -301,6 +306,8 @@ class parser():
             x.dostuff()
             x.g_node = child_g_node
             self.curr = x
+            if not item_found:
+                item_found = self.curr
             self.tag, self.attrs = line_get(self.infile)
 
 p = parser(sys.argv[1])
