@@ -292,6 +292,31 @@ class parser():
                 item_found = x
             self.tag, self.attrs = line_get(self.infile)
 
+def create_find_item(DBp, tagname):
+    class index_holder:
+        def __init__(self):
+            self.curr_index = 0
+    a = index_holder()
+    def find_next_item(test):
+        l = DBp.db.children.get(tagname)
+        for item in ((l and l[a.curr_index:]) or []):
+            a.curr_index = a.curr_index + 1
+            if test(item):
+                print 'Match found:', item.name
+                return item
+        item = DBp.get_item()
+        while item:
+            if test(item):
+                print 'Match found:', item.name
+                return item
+            item = DBp.get_item()
+
+        print 'No matches found'
+        return None
+    def find_first_item(test):
+        a.curr_index = 0
+        return find_next_item(test)
+    return find_first_item, find_next_item
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
@@ -302,25 +327,11 @@ if __name__ == "__main__":
     fdsdfdsf = 9
     #everything = [point_def]
     DBp = parser(sys.argv[1])
-    def find_point(test):
-        for pt in (DBp.db.children.get('TLM_POINT') or []):
-            #print 'hoya hoya'
-            if test(pt):
-                print 'Match found:', pt.name
-                return pt
-        item = DBp.get_item()
-        while item:
-            if item.attrs.has_key('TLM_MNEMONIC'):
-                #item.dostuff()
-                if test(item):
-                    print 'Match found:', item.name
-                    return item
-            item = DBp.get_item()
-
-        print 'No matches found'
-        return None
+    find_point, find_next_point = create_find_item(DBp, 'TLM_POINT')
 
     #DBp.do_crap2()
     find_point(lambda p: len(p.children.get('TLM_LIMITS_SET') or []) > 1)
     find_point(lambda p: p.children.get('TLM_STATE_CONTEXT'))
+#    find_next_point(lambda p: p.children.get('TLM_STATE_CONTEXT'))
+#    find_point(lambda p: p.children.get('TLM_STATE_CONTEXT'))
     
