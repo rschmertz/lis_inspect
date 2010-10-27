@@ -33,6 +33,9 @@ class nodeobject():
             self.children[name].append(new_child)
         new_child.parasitize(self)
 
+    def getchild(self, tag):
+        return self.children.get(tag)
+
 class listmemberobject(nodeobject):
     '''
        This type of object always occurs in a list.
@@ -64,6 +67,12 @@ class point(nodeobject):
         except AttributeError:
             parent.pointlist = []
             parent.pointlist.append(self)
+
+class location(listmemberobject):
+    def __init__(self, parent, attrs):
+        listmemberobject.__init__(self, parent, attrs)
+        self.start_bit = int(self.attrs['START_BIT'])
+        self.num_bits = int(self.attrs['NUM_BITS'])
         
 #     def addchild(name, obj):
 #         nodeobject.addchild(self, name, obj)
@@ -85,7 +94,7 @@ point_def = (  'TLM_POINT', point,
                    [(  'TLM_STATE', None, None)]),
                 (  'TLM_LIMITS_SET', listmemberobject, None),
                 (  'TLM_EUS', listmemberobject, None),
-                (  'TLM_LOCATION', listmemberobject, None)])
+                (  'TLM_LOCATION', location, None)])
 
 global_def = (  'GLOBAL_VAR', None,
                 [(  'GLOBAL_LONG_VALUE', None, None)])
@@ -310,6 +319,7 @@ def create_find_item(DBp, tagname):
                 return item
         item = DBp.get_item()
         while item:
+            a.curr_index = a.curr_index + 1
             if test(item):
                 print 'Match found:', item.name
                 return item
@@ -321,6 +331,21 @@ def create_find_item(DBp, tagname):
         a.curr_index = 0
         return find_next_item(test)
     return find_first_item, find_next_item
+
+def location_lambda(location_bit):
+    lbit = location_bit # less typing
+    def find_loc(p):
+        for loc in (p.getchild('TLM_LOCATION') or []):
+            #start_it = int(loc.attrs['START_BIT'])
+            #print 'start bit is', start_bit
+            if loc.start_bit <= lbit and lbit < (loc.start_bit
+                                             + loc.num_bits):
+                print p.name, 'start bit:', loc.start_bit, ', num bits:', loc.num_bits,
+                print 'for', loc.attrs['MODE_NAME'], 'value', loc.attrs.get('MODE_VALUE')
+                
+                return True
+        return False
+    return find_loc
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
@@ -336,6 +361,8 @@ if __name__ == "__main__":
     #DBp.do_crap2()
     find_point(lambda p: len(p.children.get('TLM_LIMITS_SET') or []) > 1)
     find_point(lambda p: p.children.get('TLM_STATE_CONTEXT'))
+    find_point(location_lambda(115))
+    find_next_point(location_lambda(115))
     find_next_point(lambda p: len(p.children.get('TLM_EUS') or []) > 1)
 #    find_next_point(lambda p: p.children.get('TLM_STATE_CONTEXT'))
 #    find_point(lambda p: p.children.get('TLM_STATE_CONTEXT'))
