@@ -15,7 +15,8 @@ class nodeobject():
         pass
 
     def dostuff(self):
-        print 'dostuff not defined for', self.__class__.__name__
+        #print 'dostuff not defined for', self.__class__.__name__
+        pass
         
     def addchild(self, name, new_child):
         if not self.children.has_key(name):
@@ -53,7 +54,8 @@ class point(nodeobject):
         self.name = self.attrs['TLM_MNEMONIC']
 
     def dostuff(self):
-        print 'point name is', self.name
+        #print 'point name is', self.name
+        pass
 
     def parasitize(self, parent):
         try:
@@ -82,6 +84,7 @@ point_def = (  'TLM_POINT', point,
                 (  'TLM_STATE_CONTEXT', listmemberobject,
                    [(  'TLM_STATE', None, None)]),
                 (  'TLM_LIMITS_SET', listmemberobject, None),
+                (  'TLM_EUS', listmemberobject, None),
                 (  'TLM_LOCATION', listmemberobject, None)])
 
 global_def = (  'GLOBAL_VAR', None,
@@ -267,7 +270,8 @@ class parser():
             print "get_tiem did not start out at top_node"
             sys.exit(1)
         else:
-            print 'started out at top node'
+            #print 'started out at top node'
+            pass
         
         item_found = None
         while True:
@@ -332,6 +336,7 @@ if __name__ == "__main__":
     #DBp.do_crap2()
     find_point(lambda p: len(p.children.get('TLM_LIMITS_SET') or []) > 1)
     find_point(lambda p: p.children.get('TLM_STATE_CONTEXT'))
+    find_next_point(lambda p: len(p.children.get('TLM_EUS') or []) > 1)
 #    find_next_point(lambda p: p.children.get('TLM_STATE_CONTEXT'))
 #    find_point(lambda p: p.children.get('TLM_STATE_CONTEXT'))
     
