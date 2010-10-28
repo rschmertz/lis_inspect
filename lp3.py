@@ -4,6 +4,8 @@
 
 import sys, re, types
 
+vmode = True; #verbose
+
 class nodeobject():
     def __init__(self, parent, attrs):
         self.parent = parent
@@ -15,7 +17,8 @@ class nodeobject():
         pass
 
     def dostuff(self):
-        #print 'dostuff not defined for', self.__class__.__name__
+        if vmode:
+            print 'dostuff not defined for', self.__class__.__name__
         pass
         
     def addchild(self, name, new_child):
@@ -57,7 +60,8 @@ class point(nodeobject):
         self.name = self.attrs['TLM_MNEMONIC']
 
     def dostuff(self):
-        #print 'point name is', self.name
+        if vmode:
+            print 'point name is', self.name
         pass
 
     def parasitize(self, parent):
@@ -279,7 +283,8 @@ class parser():
             print "get_tiem did not start out at top_node"
             sys.exit(1)
         else:
-            #print 'started out at top node'
+            if vmode:
+                print 'started out at top node'
             pass
         
         item_found = None
