@@ -7,8 +7,9 @@ import sys, re, types
 vmode = True; #verbose
 
 class nodeobject():
-    def __init__(self, parent, attrs):
+    def __init__(self, parent, type, attrs):
         self.parent = parent
+        self.node_type = type
         self.attrs = attrs
         self.children = {}
         self.isListMember = False
@@ -21,7 +22,8 @@ class nodeobject():
             print 'dostuff not defined for', self.__class__.__name__
         pass
         
-    def addchild(self, name, new_child):
+    def addchild(self, new_child):
+        name = new_child.node_type
         if not self.children.has_key(name):
             if new_child.isListMember:
                 self.children[name] = [new_child]
@@ -49,14 +51,14 @@ class listmemberobject(nodeobject):
        one of many, it is btter to decare it as a member of a list
        from the beginning, to simplify searches.
     '''
-    def __init__(self, parent, attrs):
-        nodeobject.__init__(self, parent, attrs)
+    def __init__(self, parent, type, attrs):
+        nodeobject.__init__(self, parent, type, attrs)
         self.isListMember = True
         
 
 class point(nodeobject):
-    def __init__(self, parent, attrs):
-        nodeobject.__init__(self, parent, attrs)
+    def __init__(self, parent, type, attrs):
+        nodeobject.__init__(self, parent, type, attrs)
         self.name = self.attrs['TLM_MNEMONIC']
 
     def dostuff(self):
@@ -73,8 +75,8 @@ class point(nodeobject):
             parent.pointlist.append(self)
 
 class location(listmemberobject):
-    def __init__(self, parent, attrs):
-        listmemberobject.__init__(self, parent, attrs)
+    def __init__(self, parent, type, attrs):
+        listmemberobject.__init__(self, parent, type, attrs)
         self.start_bit = int(self.attrs['START_BIT'])
         self.num_bits = int(self.attrs['NUM_BITS'])
         
@@ -89,7 +91,7 @@ class dbobject(nodeobject):
     This is the object for the whole parsed database
     '''
     def __init__(self, parent, attrs):
-        nodeobject.__init__(self, parent, attrs)
+        nodeobject.__init__(self, parent, 'The DB', attrs)
         self.pointdir = {}
 
 point_def = (  'TLM_POINT', point,
@@ -301,8 +303,8 @@ class parser():
             if (self.curr == self.db) and item_found:
                 return item_found
             child_g_node = tempnode.g_node.get_child(self.tag)
-            x = child_g_node.klass(self.curr, self.attrs)
-            self.curr.addchild(self.tag, x)
+            x = child_g_node.klass(self.curr, self.tag, self.attrs)
+            self.curr.addchild(x)
             x.dostuff()
             x.g_node = child_g_node
             self.curr = x
