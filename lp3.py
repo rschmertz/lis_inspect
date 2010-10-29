@@ -4,7 +4,7 @@
 
 import sys, re, types
 
-vmode = True; #verbose
+vmode = True #verbose
 
 class nodeobject():
     def __init__(self, parent, type, attrs):
