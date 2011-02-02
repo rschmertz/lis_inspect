@@ -13,6 +13,7 @@ class nodeobject():
         self.attrs = attrs
         self.children = {}
         self.isListMember = False
+        self.name = 'name not defined for ' + self.__class__.__name__
 
     def parasitize(self, parent):
         pass
@@ -85,6 +86,10 @@ class location(listmemberobject):
 #         if obj.__class__.__name__ == 'point':
 #             pointlist.append(obj)
 
+class globalvar(nodeobject):
+    def __init__(self, parent, type, attrs):
+        nodeobject.__init__(self, parent, type, attrs)
+        self.name = self.attrs['VAR_NAME']
 
 class dbobject(nodeobject):
     '''
@@ -105,6 +110,12 @@ point_def = (  'TLM_POINT', point,
 global_def = (  'GLOBAL_VAR', None,
                 [(  'GLOBAL_LONG_VALUE', None, None)])
 
+global_def = (  'GLOBAL_VAR', globalvar,
+                [  ('VAR_STATE', None, None),
+                   ('VAR_LIMIT', None, None),
+                   ('GLOBAL_LONG_VALUE', None, None)])
+
+# Bug: inclusion of global_def seems to pollute tlm point searches
 everything = [point_def, global_def]
 
 class gt_node:
@@ -209,7 +220,6 @@ def line_get(thefile):
         else:
             readmore = 0
         ll.append(l)
-    tag = ll[0].split()[0][1:-1] # Got that? ;-)
     rv = ' '.join(ll)
     if not rv:
         print 'returning nada'
