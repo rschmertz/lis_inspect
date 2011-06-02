@@ -104,6 +104,7 @@ point_def = (  'TLM_POINT', point,
                    [(  'TLM_STATE', None, None)]),
                 (  'TLM_LIMITS_SET', listmemberobject, None),
                 (  'TLM_EUS', listmemberobject, None),
+                (  'TLM_CAL_PAIRS_SET', listmemberobject, None),
                 (  'TLM_LOCATION', location, None)])
 
 global_def = (  'GLOBAL_VAR', None,
@@ -364,6 +365,40 @@ def location_lambda(location_bit):
         return False
     return find_loc
 
+xml_map = {
+    'TLM_POINT':'point',
+    'TLM_LOCATION':'location'
+}
+
+def xml_node_out(node, indent, out):
+    indent = indent + 1
+    tagname = xml_map.get(node.node_type, node.node_type.lower())
+    line = ('    ' * indent) + '<' + tagname + ' '
+    alist = ' '.join(['%s="%s"' % (j.lower(), node.attrs[j])
+                      for j in sorted(node.attrs.keys())])
+    line = line + alist + '>\n'
+    out.write(line)
+    for kidkey in sorted(node.children.keys()):
+        kid = node.children[kidkey]
+        if type(kid) != types.ListType:
+            kidlist = [kid]
+        else:
+            kidlist = kid
+        for k in kidlist:
+            xml_node_out(k, indent, out)
+
+def xml_out(DBp):
+    out = open('nu.xml', 'w')
+    out.write('<xml>\n')
+    l = DBp.db.children.get('TLM_POINT')
+    for item in l:
+        xml_node_out(item, 0, out)
+    item = DBp.get_item()
+    while item:
+        item = DBp.get_item()
+
+    out.write('</xml>\n')
+
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print 'Need a file to parse as 1st arg'
@@ -381,6 +416,6 @@ if __name__ == "__main__":
     find_point(location_lambda(115))
     find_next_point(location_lambda(115))
     find_next_point(lambda p: len(p.children.get('TLM_EUS') or []) > 1)
+    xml_out(DBp)
 #    find_next_point(lambda p: p.children.get('TLM_STATE_CONTEXT'))
 #    find_point(lambda p: p.children.get('TLM_STATE_CONTEXT'))
-    
