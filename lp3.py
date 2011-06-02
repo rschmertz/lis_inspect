@@ -56,9 +56,9 @@ class listmemberobject(nodeobject):
         self.isListMember = True
         
 
-class point(nodeobject):
+class point(listmemberobject):
     def __init__(self, parent, type, attrs):
-        nodeobject.__init__(self, parent, type, attrs)
+        listmemberobject.__init__(self, parent, type, attrs)
         self.name = self.attrs['TLM_MNEMONIC']
 
     def dostuff(self):
