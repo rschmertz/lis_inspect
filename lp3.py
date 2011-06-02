@@ -104,9 +104,9 @@ class location(listmemberobject):
 #         if obj.__class__.__name__ == 'point':
 #             pointlist.append(obj)
 
-class globalvar(nodeobject):
+class globalvar(listmemberobject):
     def __init__(self, parent, type, attrs):
-        nodeobject.__init__(self, parent, type, attrs)
+        listmemberobject.__init__(self, parent, type, attrs)
         self.name = self.attrs['VAR_NAME']
 
 class dbobject(nodeobject):
