@@ -107,16 +107,17 @@ point_def = (  'TLM_POINT', point,
                 (  'TLM_CAL_PAIRS_SET', listmemberobject, None),
                 (  'TLM_LOCATION', location, None)])
 
-global_def = (  'GLOBAL_VAR', None,
-                [(  'GLOBAL_LONG_VALUE', None, None)])
-
 global_def = (  'GLOBAL_VAR', globalvar,
                 [  ('VAR_STATE', None, None),
                    ('VAR_LIMIT', None, None),
                    ('GLOBAL_LONG_VALUE', None, None)])
 
-# Bug: inclusion of global_def seems to pollute tlm point searches
-everything = [point_def, global_def]
+cmd_def =   (  'CMD_DEFINITION', command,
+               [(  'DATAWORD_ARG', listmemberobject,
+                   [(  'VALUE_RANGE', None, None)]),
+                ('PRIVILEGE_GROUP', None, None)])
+
+everything = [point_def, cmd_def]
 
 class gt_node:
     def __init__(self,tag,parent):
@@ -409,6 +410,7 @@ if __name__ == "__main__":
     #everything = [point_def]
     DBp = parser(sys.argv[1])
     find_point, find_next_point = create_find_item(DBp, 'TLM_POINT')
+    find_cmd, find_next_cmd = create_find_item(DBp, 'CMD_DEFINITION')
 
     #DBp.do_crap2()
     find_point(lambda p: len(p.children.get('TLM_LIMITS_SET') or []) > 1)
