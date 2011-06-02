@@ -74,6 +74,25 @@ class point(listmemberobject):
             parent.pointlist = []
             parent.pointlist.append(self)
 
+class command(listmemberobject):
+    def __init__(self, parent, type, attrs):
+        listmemberobject.__init__(self, parent, type, attrs)
+        self.name = self.attrs['CMD_MNEMONIC']
+
+    def dostuff(self):
+        if vmode:
+            print 'command mnemonic is', self.name
+        pass
+
+    def parasitize(self, parent):
+        return # do I need to do something?
+        try:
+            #print 'Adding me to parent type ', parent.__class__.__name__
+            parent.pointlist.append(self)
+        except AttributeError:
+            parent.pointlist = []
+            parent.pointlist.append(self)
+
 class location(listmemberobject):
     def __init__(self, parent, type, attrs):
         listmemberobject.__init__(self, parent, type, attrs)
