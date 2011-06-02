@@ -21,7 +21,6 @@ class nodeobject():
     def dostuff(self):
         if vmode:
             print 'dostuff not defined for', self.__class__.__name__
-        pass
         
     def addchild(self, new_child):
         name = new_child.node_type
@@ -293,7 +292,8 @@ class parser():
         node = self.curr
         if node != self.db:
             print "get_tiem did not start out at top_node"
-            sys.exit(1)
+            #sys.exit(1)
+            return None
         else:
             if vmode:
                 print 'started out at top node'
