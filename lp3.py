@@ -339,7 +339,7 @@ def create_find_item(DBp, tagname):
         item = DBp.get_item()
         while item:
             a.curr_index = a.curr_index + 1
-            if test(item):
+            if item.node_type == tagname and test(item):
                 print 'Match found:', item.name
                 return item
             item = DBp.get_item()
