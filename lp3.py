@@ -396,16 +396,23 @@ def xml_node_out(node, indent, out):
     line = ('    ' * indent) + '<' + tagname + ' '
     alist = ' '.join(['%s="%s"' % (j.lower(), node.attrs[j])
                       for j in sorted(node.attrs.keys())])
-    line = line + alist + '>\n'
-    out.write(line)
-    for kidkey in sorted(node.children.keys()):
-        kid = node.children[kidkey]
-        if type(kid) != types.ListType:
-            kidlist = [kid]
-        else:
-            kidlist = kid
-        for k in kidlist:
-            xml_node_out(k, indent, out)
+    line = line + alist
+    if node.children:
+        line = line + '>\n'
+        out.write(line)
+        for kidkey in sorted(node.children.keys()):
+            kid = node.children[kidkey]
+            if type(kid) != types.ListType:
+                kidlist = [kid]
+            else:
+                kidlist = kid
+            for k in kidlist:
+                xml_node_out(k, indent, out)
+        line = ('    ' * indent) + '</' + tagname + '>\n'
+        out.write(line)
+    else:
+        line = line + ' />\n'
+        out.write(line)
 
 def xml_out(DBp):
     out = open('nu.xml', 'w')
