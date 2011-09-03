@@ -6,7 +6,7 @@ import sys, re, types
 
 vmode = True #verbose
 
-class nodeobject():
+class nodeobject:
     def __init__(self, parent, type, attrs):
         self.parent = parent
         self.node_type = type
@@ -109,6 +109,15 @@ class globalvar(listmemberobject):
         listmemberobject.__init__(self, parent, type, attrs)
         self.name = self.attrs['VAR_NAME']
 
+class global_value(nodeobject):
+    def x__init__(self, parent, type, attrs):
+        nodeobject.__init__(self, parent, type, attrs)
+
+    def parasitize(self, parent):
+        if hasattr(parent, 'value_member'):
+            raise 'Global has multiple default value definitions'
+        parent.value_member = self
+
 class dbobject(nodeobject):
     '''
     This is the object for the whole parsed database
@@ -129,14 +138,18 @@ point_def = (  'TLM_POINT', point,
 global_def = (  'GLOBAL_VAR', globalvar,
                 [  ('VAR_STATE', None, None),
                    ('VAR_LIMIT', None, None),
-                   ('GLOBAL_LONG_VALUE', None, None)])
+                   ('GLOBAL_LONG_VALUE', global_value, None),
+                   ('GLOBAL_STRING_VALUE', global_value, None),
+                   ('GLOBAL_DOUBLE_VALUE', global_value, None),
+                   ('GLOBAL_TIMEVAL_VALUE', global_value, None),
+                   ])
 
 cmd_def =   (  'CMD_DEFINITION', command,
                [(  'DATAWORD_ARG', listmemberobject,
                    [(  'VALUE_RANGE', None, None)]),
                 ('PRIVILEGE_GROUP', None, None)])
 
-everything = [point_def, cmd_def]
+everything = [point_def, global_def, cmd_def]
 
 class gt_node:
     def __init__(self,tag,parent):
@@ -447,3 +460,4 @@ if __name__ == "__main__":
     xml_out(DBp)
 #    find_next_point(lambda p: p.children.get('TLM_STATE_CONTEXT'))
 #    find_point(lambda p: p.children.get('TLM_STATE_CONTEXT'))
+  
