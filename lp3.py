@@ -118,6 +118,24 @@ class global_value(nodeobject):
             raise 'Global has multiple default value definitions'
         parent.value_member = self
 
+class event(listmemberobject):
+    numlist = [] # class-wide list
+    def __init__(self, parent, type, attrs):
+        listmemberobject.__init__(self, parent, type, attrs)
+        self.name = self.attrs['EVENT_NAME']
+        num = int(self.attrs['EVENT_NUMBER'])
+        self.num = num
+        try:
+            self.numlist[num] = self
+        except IndexError:
+            self.numlist.extend([None] * (num - len(self.numlist) + 2))
+            self.numlist[num] = self
+    @classmethod
+    def printlist(self):
+        for i in self.numlist:
+            if i:
+                print i.num, ': ', i.name
+
 class dbobject(nodeobject):
     '''
     This is the object for the whole parsed database
@@ -149,7 +167,9 @@ cmd_def =   (  'CMD_DEFINITION', command,
                    [(  'VALUE_RANGE', None, None)]),
                 ('PRIVILEGE_GROUP', None, None)])
 
-everything = [point_def, global_def, cmd_def]
+evt_def =   (  'SYSTEM_EVENT', event, None)
+
+everything = [point_def, global_def, cmd_def, evt_def]
 
 class gt_node:
     def __init__(self,tag,parent):
@@ -270,7 +290,7 @@ def load_attrs(tl):
         tl = tl[2:]
     return d
 
-class parser():
+class parser:
     def __init__(k, filename):
         k.infile = open(filename)
         k.gt = grammar_tree(everything)
