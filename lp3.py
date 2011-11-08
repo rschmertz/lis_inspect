@@ -392,8 +392,12 @@ def location_lambda(location_bit):
             if loc.start_bit <= lbit and lbit < (loc.start_bit
                                              + loc.num_bits):
                 print p.name, 'start bit:', loc.start_bit, ', num bits:', loc.num_bits,
-                print 'for', loc.attrs['MODE_NAME'], 'value', loc.attrs.get('MODE_VALUE')
-                
+                mode_name = loc.attrs.get('MODE_NAME')
+                mode_value = loc.attrs.get('MODE_VALUE')
+                if mode_name and mode_value:
+                    print 'for', mode_name, 'value', mode_value
+                else:
+                    print '\nno mode for point?'                
                 return True
         return False
     return find_loc
