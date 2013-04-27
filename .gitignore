@@ -2,6 +2,7 @@
 #*#
 *.lis
 *.out
+nu.xml
 
 *.py[cod]
 

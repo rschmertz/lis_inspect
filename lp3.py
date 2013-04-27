@@ -193,7 +193,7 @@ class grammar_tree:
         #self.tag_lookup = {}
         self.curr = self.top_node
         #add something about the current actual data node here, so that we can
-        #move up the db tree as wee move up the grammar tree
+        #move up the db tree as we move up the grammar tree
 
         self.load_graph(model, self.curr)
 
@@ -250,8 +250,7 @@ contcharlen = len(contchar)
 def line_get(thefile):
     '''
     Scan for lines with valid syntax(???).  Comment lines are ignored.  Sets
-    of lines w/ continuations are joined into one.  If starting tag is
-    not known, throw away new joined line and check for next.
+    of lines w/ continuations are joined into one.
     '''
     ll = [] # line list -- join at the end
     readmore = 1 # Flag -- yuck
@@ -312,17 +311,6 @@ class parser:
             for x in l:
                 print '---->', x.attrs['START_BIT']
 
-    def do_crap2(self):
-        last_g_name = None
-        while (self.tag):
-            g = self.get_item()
-            if g == None:
-                print 'NO item returned!!!'
-            last_g_name = g.attrs.get('VAR_NAME', last_g_name)
-        self.showstuff()
-        #print 'last global name is', last_g_name
-        
-
     def locate_tag(self, tag):
         '''
            Determines whether and where a tag is found; does not change
@@ -340,7 +328,7 @@ class parser:
 
     def get_item(self):
         '''
-           Gets a complete item, e.g., a tlm_point or a global
+           Gets a complete (i.e., top-level) item, e.g., a tlm_point or a global
         '''
         # Warning: assuming parser is at the sort-of-top level
         node = self.curr
