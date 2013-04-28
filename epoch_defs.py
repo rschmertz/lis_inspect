@@ -1,4 +1,14 @@
-from lis_parser import *
+'''
+EPOCH .lis file parser implementation
+'''
+
+from lis_parser import parser, nodeobject, listmemberobject
+
+vmode = False
+
+'''
+   First define class types where desired
+'''
 
 class point(listmemberobject):
     def __init__(self, parent, type, attrs):
@@ -79,6 +89,12 @@ class event(listmemberobject):
         for i in self.numlist:
             if i:
                 print i.num, ': ', i.name
+
+'''
+   Now that all the desired class types have been defined, describe the node
+   hierarchy for all "items" of interest.  The hierarchy description need not
+   be complete in order for the parser to work correctly.
+'''
 
 point_def = (  'TLM_POINT', point,
                [(  'TLM_VALUE', None, None),

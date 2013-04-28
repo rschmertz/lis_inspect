@@ -22,6 +22,10 @@ def location_lambda(location_bit):
         return False
     return find_loc
 
+class epoch_parser(parser):
+    def __init__(self, filename):
+        parser.__init__(self, everything, filename)
+
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print 'Need a file to parse as 1st arg'
@@ -30,7 +34,7 @@ if __name__ == "__main__":
     #load_db(DBp)
     fdsdfdsf = 9
     #everything = [point_def]
-    DBp = parser(everything, sys.argv[1])
+    DBp = epoch_parser(sys.argv[1])
     find_point, find_next_point = create_find_item(DBp, 'TLM_POINT')
     find_cmd, find_next_cmd = create_find_item(DBp, 'CMD_DEFINITION')
 
