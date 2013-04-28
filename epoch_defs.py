@@ -39,13 +39,12 @@ class command(listmemberobject):
         pass
 
     def parasitize(self, parent):
-        return # do I need to do something?
         try:
             #print 'Adding me to parent type ', parent.__class__.__name__
-            parent.pointlist.append(self)
+            parent.commandlist.append(self)
         except AttributeError:
-            parent.pointlist = []
-            parent.pointlist.append(self)
+            parent.commandlist = []
+            parent.commandlist.append(self)
 
 class location(listmemberobject):
     def __init__(self, parent, type, attrs):
@@ -73,22 +72,31 @@ class global_value(nodeobject):
         parent.value_member = self
 
 class event(listmemberobject):
-    numlist = [] # class-wide list
     def __init__(self, parent, type, attrs):
         listmemberobject.__init__(self, parent, type, attrs)
         self.name = self.attrs['EVENT_NAME']
         num = int(self.attrs['EVENT_NUMBER'])
         self.num = num
+
+    def parasitize(self, parent):
         try:
-            self.numlist[num] = self
+            #print 'Adding me to parent type ', parent.__class__.__name__
+            parent.eventlist.append(self)
+        except AttributeError:
+            parent.eventlist = []
+            parent.eventlist.append(self)
+
+        try:
+            parent.numlist[self.num] = self
+        except AttributeError:
+            parent.numlist = [None] * (self.num + 2)
+            parent.numlist[self.num] = self
         except IndexError:
-            self.numlist.extend([None] * (num - len(self.numlist) + 2))
-            self.numlist[num] = self
-    @classmethod
-    def printlist(self):
-        for i in self.numlist:
-            if i:
-                print i.num, ': ', i.name
+            parent.numlist.extend([None] * (self.num - len(parent.numlist) + 2))
+            parent.numlist[self.num] = self
+
+    def dostuff(self):
+        pass
 
 '''
    Now that all the desired class types have been defined, describe the node
