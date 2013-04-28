@@ -26,6 +26,26 @@ class epoch_parser(parser):
     def __init__(self, filename):
         parser.__init__(self, everything, filename)
 
+def interact(filename):
+    DBp = epoch_parser(sys.argv[1])
+    find_point, find_next_point = create_find_item(DBp, 'TLM_POINT')
+    find_cmd, find_next_cmd = create_find_item(DBp, 'CMD_DEFINITION')
+    import code
+    ibanner = '''
+       Do queries here.  Create functions to use as predicates to
+       find_point, find_next_command, etc.
+
+       Examples: 
+
+          find_point(lambda p: len(p.children.get('TLM_LIMITS_SET') or []) > 1)
+
+          find_next_point(location_lambda(115))
+
+          
+'''
+    code.interact(banner=ibanner, local=dict(globals(), **locals()))
+    print 'nice console!'
+
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print 'Need a file to parse as 1st arg'
