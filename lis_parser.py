@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 
 #God, I hope this makes it simpler
 
@@ -56,86 +55,6 @@ class listmemberobject(nodeobject):
         self.isListMember = True
         
 
-class point(listmemberobject):
-    def __init__(self, parent, type, attrs):
-        listmemberobject.__init__(self, parent, type, attrs)
-        self.name = self.attrs['TLM_MNEMONIC']
-
-    def dostuff(self):
-        if vmode:
-            print 'point name is', self.name
-        pass
-
-    def parasitize(self, parent):
-        try:
-            #print 'Adding me to parent type ', parent.__class__.__name__
-            parent.pointlist.append(self)
-        except AttributeError:
-            parent.pointlist = []
-            parent.pointlist.append(self)
-
-class command(listmemberobject):
-    def __init__(self, parent, type, attrs):
-        listmemberobject.__init__(self, parent, type, attrs)
-        self.name = self.attrs['CMD_MNEMONIC']
-
-    def dostuff(self):
-        if vmode:
-            print 'command mnemonic is', self.name
-        pass
-
-    def parasitize(self, parent):
-        return # do I need to do something?
-        try:
-            #print 'Adding me to parent type ', parent.__class__.__name__
-            parent.pointlist.append(self)
-        except AttributeError:
-            parent.pointlist = []
-            parent.pointlist.append(self)
-
-class location(listmemberobject):
-    def __init__(self, parent, type, attrs):
-        listmemberobject.__init__(self, parent, type, attrs)
-        self.start_bit = int(self.attrs['START_BIT'])
-        self.num_bits = int(self.attrs['NUM_BITS'])
-        
-#     def addchild(name, obj):
-#         nodeobject.addchild(self, name, obj)
-#         if obj.__class__.__name__ == 'point':
-#             pointlist.append(obj)
-
-class globalvar(listmemberobject):
-    def __init__(self, parent, type, attrs):
-        listmemberobject.__init__(self, parent, type, attrs)
-        self.name = self.attrs['VAR_NAME']
-
-class global_value(nodeobject):
-    def x__init__(self, parent, type, attrs):
-        nodeobject.__init__(self, parent, type, attrs)
-
-    def parasitize(self, parent):
-        if hasattr(parent, 'value_member'):
-            raise 'Global has multiple default value definitions'
-        parent.value_member = self
-
-class event(listmemberobject):
-    numlist = [] # class-wide list
-    def __init__(self, parent, type, attrs):
-        listmemberobject.__init__(self, parent, type, attrs)
-        self.name = self.attrs['EVENT_NAME']
-        num = int(self.attrs['EVENT_NUMBER'])
-        self.num = num
-        try:
-            self.numlist[num] = self
-        except IndexError:
-            self.numlist.extend([None] * (num - len(self.numlist) + 2))
-            self.numlist[num] = self
-    @classmethod
-    def printlist(self):
-        for i in self.numlist:
-            if i:
-                print i.num, ': ', i.name
-
 class dbobject(nodeobject):
     '''
     This is the object for the whole parsed database
@@ -143,33 +62,6 @@ class dbobject(nodeobject):
     def __init__(self, parent, attrs):
         nodeobject.__init__(self, parent, 'The DB', attrs)
         self.pointdir = {}
-
-point_def = (  'TLM_POINT', point,
-               [(  'TLM_VALUE', None, None),
-                (  'TLM_STATE_CONTEXT', listmemberobject,
-                   [(  'TLM_STATE', None, None)]),
-                (  'TLM_LIMITS_SET', listmemberobject, None),
-                (  'TLM_EUS', listmemberobject, None),
-                (  'TLM_CAL_PAIRS_SET', listmemberobject, None),
-                (  'TLM_LOCATION', location, None)])
-
-global_def = (  'GLOBAL_VAR', globalvar,
-                [  ('VAR_STATE', None, None),
-                   ('VAR_LIMIT', None, None),
-                   ('GLOBAL_LONG_VALUE', global_value, None),
-                   ('GLOBAL_STRING_VALUE', global_value, None),
-                   ('GLOBAL_DOUBLE_VALUE', global_value, None),
-                   ('GLOBAL_TIMEVAL_VALUE', global_value, None),
-                   ])
-
-cmd_def =   (  'CMD_DEFINITION', command,
-               [(  'DATAWORD_ARG', listmemberobject,
-                   [(  'VALUE_RANGE', None, None)]),
-                ('PRIVILEGE_GROUP', None, None)])
-
-evt_def =   (  'SYSTEM_EVENT', event, None)
-
-everything = [point_def, global_def, cmd_def, evt_def]
 
 class gt_node:
     def __init__(self,tag,parent):
@@ -290,9 +182,9 @@ def load_attrs(tl):
     return d
 
 class parser:
-    def __init__(k, filename):
+    def __init__(k, grammar_def, filename):
         k.infile = open(filename)
-        k.gt = grammar_tree(everything)
+        k.gt = grammar_tree(grammar_def)
 
         k.db = dbobject(None, {})
         k.db.g_node = k.gt.top_node
@@ -364,112 +256,3 @@ class parser:
                 item_found = x
             self.tag, self.attrs = line_get(self.infile)
 
-def create_find_item(DBp, tagname):
-    class index_holder:
-        def __init__(self):
-            self.curr_index = 0
-    a = index_holder()
-    def find_next_item(test):
-        l = DBp.db.children.get(tagname)
-        for item in ((l and l[a.curr_index:]) or []):
-            a.curr_index = a.curr_index + 1
-            if test(item):
-                print 'Match found:', item.name
-                return item
-        item = DBp.get_item()
-        while item:
-            a.curr_index = a.curr_index + 1
-            if item.node_type == tagname and test(item):
-                print 'Match found:', item.name
-                return item
-            item = DBp.get_item()
-
-        print 'No matches found'
-        return None
-    def find_first_item(test):
-        a.curr_index = 0
-        return find_next_item(test)
-    return find_first_item, find_next_item
-
-def location_lambda(location_bit):
-    lbit = location_bit # less typing
-    def find_loc(p):
-        for loc in (p.getchild('TLM_LOCATION') or []):
-            #start_it = int(loc.attrs['START_BIT'])
-            #print 'start bit is', start_bit
-            if loc.start_bit <= lbit and lbit < (loc.start_bit
-                                             + loc.num_bits):
-                print p.name, 'start bit:', loc.start_bit, ', num bits:', loc.num_bits,
-                mode_name = loc.attrs.get('MODE_NAME')
-                mode_value = loc.attrs.get('MODE_VALUE')
-                if mode_name and mode_value:
-                    print 'for', mode_name, 'value', mode_value
-                else:
-                    print '\nno mode for point?'                
-                return True
-        return False
-    return find_loc
-
-xml_map = {
-    'TLM_POINT':'point',
-    'TLM_LOCATION':'location'
-}
-
-def xml_node_out(node, indent, out):
-    indent = indent + 1
-    tagname = xml_map.get(node.node_type, node.node_type.lower())
-    line = ('    ' * indent) + '<' + tagname + ' '
-    alist = ' '.join(['%s="%s"' % (j.lower(), node.attrs[j])
-                      for j in sorted(node.attrs.keys())])
-    line = line + alist
-    if node.children:
-        line = line + '>\n'
-        out.write(line)
-        for kidkey in sorted(node.children.keys()):
-            kid = node.children[kidkey]
-            if type(kid) != types.ListType:
-                kidlist = [kid]
-            else:
-                kidlist = kid
-            for k in kidlist:
-                xml_node_out(k, indent, out)
-        line = ('    ' * indent) + '</' + tagname + '>\n'
-        out.write(line)
-    else:
-        line = line + ' />\n'
-        out.write(line)
-
-def xml_out(DBp):
-    out = open('nu.xml', 'w')
-    out.write('<xml>\n')
-    l = DBp.db.children.get('TLM_POINT')
-    for item in l:
-        xml_node_out(item, 0, out)
-    item = DBp.get_item()
-    while item:
-        item = DBp.get_item()
-
-    out.write('</xml>\n')
-
-if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print 'Need a file to parse as 1st arg'
-        sys.exit()
-    #DBp = dbparser(sys.argv[1])
-    #load_db(DBp)
-    fdsdfdsf = 9
-    #everything = [point_def]
-    DBp = parser(sys.argv[1])
-    find_point, find_next_point = create_find_item(DBp, 'TLM_POINT')
-    find_cmd, find_next_cmd = create_find_item(DBp, 'CMD_DEFINITION')
-
-    #DBp.do_crap2()
-    find_point(lambda p: len(p.children.get('TLM_LIMITS_SET') or []) > 1)
-    find_point(lambda p: p.children.get('TLM_STATE_CONTEXT'))
-    find_point(location_lambda(115))
-    find_next_point(location_lambda(115))
-    find_next_point(lambda p: len(p.children.get('TLM_EUS') or []) > 1)
-    xml_out(DBp)
-#    find_next_point(lambda p: p.children.get('TLM_STATE_CONTEXT'))
-#    find_point(lambda p: p.children.get('TLM_STATE_CONTEXT'))
-  
