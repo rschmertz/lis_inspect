@@ -55,7 +55,7 @@ class listmemberobject(nodeobject):
         self.isListMember = True
         
 
-class dbobject(nodeobject):
+class _dbobject(nodeobject):
     '''
     This is the object for the whole parsed database
     '''
@@ -63,7 +63,7 @@ class dbobject(nodeobject):
         nodeobject.__init__(self, parent, 'The DB', attrs)
         self.pointdir = {}
 
-class gt_node:
+class _gt_node:
     def __init__(self,tag,parent):
         self.parent = parent
         self.tag = tag
@@ -78,9 +78,9 @@ class gt_node:
     def get_child(self, tag):
         return self.kids.get(tag, None)
 
-class grammar_tree:
+class _grammar_tree:
     def __init__(self, model):
-        self.top_node = gt_node('TOP', None)
+        self.top_node = _gt_node('TOP', None)
         self.tag_lookup = set(['top'])
         #self.tag_lookup = {}
         self.curr = self.top_node
@@ -94,7 +94,7 @@ class grammar_tree:
             print 'looked up parent', parent
         else:
             parent_node = parent
-        child = gt_node(child_tag, parent_node)
+        child = _gt_node(child_tag, parent_node)
         #print type(parent_node)
         parent_node.add_child(child_tag, child)
         self.tag_lookup.add(child_tag)
@@ -115,7 +115,7 @@ class grammar_tree:
             nu_node = self.add_child(node, tuple[0], tuple[1])
             self.load_graph(tuple[2], nu_node)
             
-def tokenize(s):
+def _tokenize(s):
     '''
     tokenizes a string in an EPOCH DB.  Assumptions:
 
@@ -139,7 +139,7 @@ def tokenize(s):
 contchar = ';;'
 contcharlen = len(contchar)
 
-def line_get(thefile):
+def _line_get(thefile):
     '''
     Scan for lines with valid syntax(???).  Comment lines are ignored.  Sets
     of lines w/ continuations are joined into one.
@@ -168,11 +168,11 @@ def line_get(thefile):
     if not rv:
         print 'returning nada'
         return '',{}
-    toklist = tokenize(rv)
+    toklist = _tokenize(rv)
     #print 'returning element type', toklist[0]
-    return toklist[0][1:-1], load_attrs(toklist[1:])
+    return toklist[0][1:-1], _load_attrs(toklist[1:])
 
-def load_attrs(tl):
+def _load_attrs(tl):
     d = {}
     while len(tl) > 1:
         # Load the dictionary
@@ -184,12 +184,12 @@ def load_attrs(tl):
 class parser:
     def __init__(k, grammar_def, filename):
         k.infile = open(filename)
-        k.gt = grammar_tree(grammar_def)
+        k.gt = _grammar_tree(grammar_def)
 
-        k.db = dbobject(None, {})
+        k.db = _dbobject(None, {})
         k.db.g_node = k.gt.top_node
         k.curr = k.db
-        k.tag, k.attrs = line_get(k.infile)
+        k.tag, k.attrs = _line_get(k.infile)
         if not k.tag:
             print "file contains no tags"
             sys.exit(1)
@@ -242,7 +242,7 @@ class parser:
                 tempnode = self.locate_tag(self.tag)
                 if tempnode:
                     break
-                self.tag, self.attrs = line_get(self.infile)
+                self.tag, self.attrs = _line_get(self.infile)
             self.curr = tempnode
             if (self.curr == self.db) and item_found:
                 return item_found
@@ -254,5 +254,5 @@ class parser:
             self.curr = x
             if not item_found:
                 item_found = x
-            self.tag, self.attrs = line_get(self.infile)
+            self.tag, self.attrs = _line_get(self.infile)
 
