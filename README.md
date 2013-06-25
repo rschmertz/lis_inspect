@@ -3,7 +3,7 @@ lis_inspect
 
 Utility for inspecting/analyzing a flatfile in EPOCH's .lis format
 
-The focus of this software is to provide a tool to do Python-based queries on a text file in the .lis format used by the EPOCH satellite ground system.  The semantic aspects of and EPOCH .lis file are separated from the overall parsing function, making it easy to add new semantic elements as necessary, or provide a parser for a different file that follows the same syntax.  See relevant sections below for a description of the .lis file syntax and a few of the EPOCH specifics.
+The focus of this software is to provide a tool to do Python-based queries on a text file in the .lis format used by the EPOCH satellite ground system.  The toolset separates the semantic aspects of an EPOCH .lis file from the overall parsing function, making it easy to add new semantic elements as necessary, or to provide a parser for a different file that follows the same syntax.  See relevant sections below for a description of the .lis file syntax and a few of the EPOCH specifics.
 
 Using lis_inspect
 --------
