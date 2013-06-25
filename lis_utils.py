@@ -60,12 +60,17 @@ def xml_node_out(node, indent, out):
 def xml_out(DBp):
     out = open('nu.xml', 'w')
     out.write('<xml>\n')
-    l = DBp.db.children.get('TLM_POINT')
-    for item in l:
-        xml_node_out(item, 0, out)
+
+    # Load the whole file
     item = DBp.get_item()
     while item:
         item = DBp.get_item()
+
+    # output the points
+    kids = DBp.db.children
+    for item_type in kids.keys():
+        for item in kids[item_type]:
+            xml_node_out(item, 0, out)
 
     out.write('</xml>\n')
 

@@ -228,7 +228,7 @@ class parser:
         # Warning: assuming parser is at the sort-of-top level
         node = self.curr
         if node != self.db:
-            print "get_tiem did not start out at top_node"
+            print "get_item did not start out at top_node"
             #sys.exit(1)
             return None
         else:
