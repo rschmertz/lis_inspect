@@ -3,7 +3,7 @@
 
 import sys, re, types
 
-vmode = True #verbose
+vmode = False #verbose
 
 class nodeobject:
     def __init__(self, parent, type, attrs):
@@ -39,6 +39,9 @@ class nodeobject:
 
     def getchild(self, tag):
         return self.children.get(tag)
+
+    def getchildren(self, tag):
+        return self.children.get(tag, [])
 
 class listmemberobject(nodeobject):
     '''

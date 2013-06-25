@@ -37,7 +37,7 @@ def interact(filename):
 
        Examples: 
 
-          find_point(lambda p: len(p.children.get('TLM_LIMITS_SET') or []) > 1)
+          find_point(lambda p: len(p.getchildren('TLM_LIMITS_SET')) > 1)
 
           find_next_point(location_lambda(115))
 

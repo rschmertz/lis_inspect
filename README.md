@@ -17,10 +17,10 @@ But most common use will be to find a "top-level element" (in EPOCH, a "point", 
 
        Examples: 
 
-          find_point(lambda p: len(p.children.get('TLM_LIMITS_SET') or []) > 1)
+          find_point(lambda p: len(p.getchildren('TLM_LIMITS_SET')) > 1)
 
           find_next_point(location_lambda(115))
-    >>> p = find_point(lambda p: p.children.get('TLM_LIMITS_SET') and p.children.get('TLM_STATE_CONTEXT'))
+    >>> p = find_point(lambda p: p.getchildren('TLM_LIMITS_SET') and p.getchildren('TLM_STATE_CONTEXT'))
     Match found: AAA
     >>> ^D
 
