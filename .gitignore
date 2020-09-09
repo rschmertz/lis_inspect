@@ -1,6 +1,5 @@
 *~
 #*#
-*.lis
 *.out
 nu.xml
 
@@ -40,3 +39,6 @@ nosetests.xml
 .mr.developer.cfg
 .project
 .pydevproject
+
+#JetBrains
+.idea

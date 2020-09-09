@@ -19,11 +19,11 @@ class nodeobject:
 
     def dostuff(self):
         if vmode:
-            print 'dostuff not defined for', self.__class__.__name__
-        
+            print ('dostuff not defined for', self.__class__.__name__)
+
     def addchild(self, new_child):
         name = new_child.node_type
-        if not self.children.has_key(name):
+        if name not in self.children:
             if new_child.isListMember:
                 self.children[name] = [new_child]
             else:
@@ -31,7 +31,7 @@ class nodeobject:
         else:
             # This is a type that can have multiple entries
             # in the parent object
-            if type(self.children[name]) != types.ListType:
+            if not isinstance(self.children[name], list):
                 el = self.children[name]
                 self.children[name] = [el]
             self.children[name].append(new_child)
@@ -56,7 +56,7 @@ class listmemberobject(nodeobject):
     def __init__(self, parent, type, attrs):
         nodeobject.__init__(self, parent, type, attrs)
         self.isListMember = True
-        
+
 
 class _dbobject(nodeobject):
     '''
@@ -93,8 +93,8 @@ class _grammar_tree:
         self.load_graph(model, self.curr)
 
     def add_child(self, parent, child_tag, the_class):
-        if type(parent) == types.StringType:
-            print 'looked up parent', parent
+        if isinstance(parent, str):
+            print ('looked up parent', parent)
         else:
             parent_node = parent
         child = _gt_node(child_tag, parent_node)
@@ -106,7 +106,7 @@ class _grammar_tree:
 
     def walk_tree(self):
         def helper(node, count):
-            print '  ' * count, node.tag
+            print ('  ' * count, node.tag)
             for kid in node.kids.keys():
                 helper(node.kids[kid], count + 1)
         helper(self.kids['TOP'], 0)
@@ -117,7 +117,7 @@ class _grammar_tree:
         for tuple in graph:
             nu_node = self.add_child(node, tuple[0], tuple[1])
             self.load_graph(tuple[2], nu_node)
-            
+
 def _tokenize(s):
     '''
     tokenizes a string in an EPOCH DB.  Assumptions:
@@ -169,7 +169,7 @@ def _line_get(thefile):
         ll.append(l)
     rv = ' '.join(ll)
     if not rv:
-        print 'returning nada'
+        print ('returning nada')
         return '',{}
     toklist = _tokenize(rv)
     #print 'returning element type', toklist[0]
@@ -194,17 +194,17 @@ class parser:
         k.curr = k.db
         k.tag, k.attrs = _line_get(k.infile)
         if not k.tag:
-            print "file contains no tags"
+            print ("file contains no tags")
             sys.exit(1)
 
     def showstuff(self):
         for p in self.db.children['TLM_POINT']:
-            print '->', p.attrs['TLM_MNEMONIC']
+            print ('->', p.attrs['TLM_MNEMONIC'])
             l = p.children['TLM_LOCATION']
             if type(l) != types.ListType:
                 l = [l]
             for x in l:
-                print '---->', x.attrs['START_BIT']
+                print ('---->', x.attrs['START_BIT'])
 
     def locate_tag(self, tag):
         '''
@@ -228,14 +228,14 @@ class parser:
         # Warning: assuming parser is at the sort-of-top level
         node = self.curr
         if node != self.db:
-            print "get_item did not start out at top_node"
+            print ("get_item did not start out at top_node")
             #sys.exit(1)
             return None
         else:
             if vmode:
-                print 'started out at top node'
+                print ('started out at top node')
             pass
-        
+
         item_found = None
         while True:
             while True:

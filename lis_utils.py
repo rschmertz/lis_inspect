@@ -1,6 +1,4 @@
 
-import sys, types
-
 def create_find_item(DBp, tagname):
     class index_holder:
         def __init__(self):
@@ -11,17 +9,17 @@ def create_find_item(DBp, tagname):
         for item in ((l and l[a.curr_index:]) or []):
             a.curr_index = a.curr_index + 1
             if test(item):
-                print 'Match found:', item.name
+                print ('Match found:', item.name)
                 return item
         item = DBp.get_item()
         while item:
             a.curr_index = a.curr_index + 1
             if item.node_type == tagname and test(item):
-                print 'Match found:', item.name
+                print ('Match found:', item.name)
                 return item
             item = DBp.get_item()
 
-        print 'No matches found'
+        print ('No matches found')
         return None
     def find_first_item(test):
         a.curr_index = 0
@@ -45,7 +43,7 @@ def xml_node_out(node, indent, out):
         out.write(line)
         for kidkey in sorted(node.children.keys()):
             kid = node.children[kidkey]
-            if type(kid) != types.ListType:
+            if not isinstance(kid, list):
                 kidlist = [kid]
             else:
                 kidlist = kid

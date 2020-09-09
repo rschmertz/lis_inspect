@@ -1,0 +1,33 @@
+#point_def = (  'TLM_POINT', point,
+#               [(  'TLM_VALUE', None, None),
+#                (  'TLM_STATE_CONTEXT', listmemberobject,
+#                   [(  'TLM_STATE', None, None)]),
+#                (  'TLM_LIMITS_SET', listmemberobject, None),
+#                (  'TLM_EUS', listmemberobject, None),
+#                (  'TLM_CAL_PAIRS_SET', listmemberobject, None),
+#                (  'TLM_LOCATION', location, None)])
+
+
+[TLM_POINT] TLM_MNEMONIC "BAT1_CHARGE" TLM_WHATEV "SOMETHING"
+    [TLM_STATE_CONTEXT]
+       [TLM_STATE]
+    [TLM_STATE_CONTEXT]
+        [TLM_STATE]
+    [TLM_EUS] SOME_ATTR SOME_VAL SOME_ATTR2 SOME_VAL
+    [TLM_EUS] SOME_ATTR SOME_VAL SOME_ATTR2 SOME_VAL
+    [TLM_LOCATION] START_BIT 30 NUM_BITS 2
+    [TLM_LOCATION] START_BIT 32 NUM_BITS 2
+    [TLM_LOCATION] START_BIT 39 NUM_BITS 2
+
+[TLM_POINT] TLM_MNEMONIC "BAT2_CHARGE" TLM_WHATEV "SOMETHING"
+    [TLM_STATE_CONTEXT]
+       [TLM_STATE]
+    [TLM_STATE_CONTEXT]
+        [TLM_STATE]
+    [TLM_EUS] SOME_ATTR SOME_VAL SOME_ATTR2 SOME_VAL
+    [TLM_EUS] SOME_ATTR SOME_VAL SOME_ATTR2 SOME_VAL
+    [TLM_LOCATION] START_BIT 40 NUM_BITS 2
+    [TLM_LOCATION] START_BIT 42 NUM_BITS 2
+    [TLM_LOCATION] START_BIT 49 NUM_BITS 2
+
+[SYSTEM_EVENT] EVENT_NAME EXCITIN_EVENT EVENT_NUMBER 34

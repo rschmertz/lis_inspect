@@ -17,7 +17,7 @@ class point(listmemberobject):
 
     def dostuff(self):
         if vmode:
-            print 'point name is', self.name
+            print ('point name is', self.name)
         pass
 
     def parasitize(self, parent):
@@ -35,7 +35,7 @@ class command(listmemberobject):
 
     def dostuff(self):
         if vmode:
-            print 'command mnemonic is', self.name
+            print('command mnemonic is', self.name)
         pass
 
     def parasitize(self, parent):
@@ -68,7 +68,7 @@ class global_value(nodeobject):
 
     def parasitize(self, parent):
         if hasattr(parent, 'value_member'):
-            raise 'Global has multiple default value definitions'
+            raise Exception('Global has multiple default value definitions')
         parent.value_member = self
 
 class event(listmemberobject):
